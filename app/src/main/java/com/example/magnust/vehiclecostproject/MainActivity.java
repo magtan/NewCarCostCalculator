@@ -1,8 +1,11 @@
 package com.example.magnust.vehiclecostproject;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ButtonBarLayout;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,9 +18,18 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    private Button btnCalc;
+    private Button btnCalc, btnNext;
     private TextView txtTotCost, txtAvgCostPrKm, txtDailyCost, txtMarginalCost, txtMarginalFuelCost;
     private EditText edtxtValue, edtxtNumberOfYears, edtxtDistance;
     private CheckBox newcar;
@@ -27,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private int distance = 0;
     private boolean newCar = false;
     private VehicleCost car;
+    private static final String TAG = "MAIN_ACTIVITY";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //button
         btnCalc = (Button) findViewById(R.id.btnCalc);
+        btnNext = (Button) findViewById(R.id.btnNext);
 
         // textview
         txtTotCost = (TextView) findViewById(R.id.txtTotCost);
@@ -65,17 +81,39 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         addCalc();
 
+
+
     }
 
 
+
     public void addCalc() {
+
         btnCalc.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        yrs = Integer.parseInt(edtxtNumberOfYears.getText().toString());
-                        value = Integer.parseInt(edtxtValue.getText().toString());
-                        distance = Integer.parseInt(edtxtDistance.getText().toString());
+                        if (edtxtNumberOfYears.getText().toString().equals("")) {
+                           yrs = 1;
+                            // This should work!
+                        }else{
+                            yrs = Integer.parseInt(edtxtNumberOfYears.getText().toString());
+                        }
+
+                        if (edtxtValue.getText().toString().equals("")) {
+                            value = 300000;
+                            // This should work!
+                        }else{
+                            value = Integer.parseInt(edtxtValue.getText().toString());
+                        }
+
+                        if (edtxtDistance.getText().toString().equals("")) {
+                            distance = 0;
+                            // This should work!
+                        }else{
+                            distance = Integer.parseInt(edtxtDistance.getText().toString());
+                        }
+
                         newCar = newcar.isChecked();
                         car = new VehicleCost(yrs, carSize, value, distance, newCar);
                         txtTotCost.setText(String.format("%.1f", car.getTotCost())+ " kr");
@@ -83,9 +121,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         txtDailyCost.setText(String.format("%.1f", car.getAvgCostPrDay())+ " kr");
                         txtMarginalCost.setText(String.format("%.2f", car.getMarginalCostPr1Km())+ " kr");
                         txtMarginalFuelCost.setText(String.format("%.2f", car.getMarginalCostFuel())+ " kr");
+
                     }
                 }
+
         );
+
+        btnNext.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this, CarInfo.class);
+                        startActivity(intent);
+                    }});
     }
 
     @Override
@@ -98,4 +146,5 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
+
 }
